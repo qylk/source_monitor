@@ -1,5 +1,6 @@
 INTERVAL = 30 * 1000;
 TARGET_URL = "http://weixin.ngarihealth.com/weixin/*.jsonRequest";
+COUNT = 0;
 
 function requestPermission() {
     Notification.requestPermission().finally();
@@ -7,7 +8,7 @@ function requestPermission() {
 
 function start() {
     requestPermission();
-    window.timerId = setInterval(monitor, INTERVAL);
+    monitor();
 }
 
 function monitor() {
@@ -26,29 +27,30 @@ function monitor() {
         },
         cache: false,
         contentType: 'application/json',
-        dataType: "json"
+        dataType: "json",
+        complete: function () {
+            $('#count').text(`has monitor ${++COUNT} times`);
+            setTimeout(monitor, INTERVAL);
+        }
     });
 }
 
 function handleResult(data) {
     var source = 0;
     data.body.forEach(function (item) {
-        if (item.doctor.proTitle === '2') {//2副主任
+        if (item.doctor.proTitle === '2') {//2
             source += item.doctor.source;
         }
     });
     if (source > 0) {
-        clearInterval(window.timerId);
         notify();
-    } else {
-        console.log("还没有");
     }
 }
 
 function notify() {
-    new Notification("状态更新提醒",
+    new Notification("what happens?",
         {
-            body: "有了",
+            body: "let's go go",
             icon: 'https://www.baidu.com/img/baidu_resultlogo@2.png',
             requireInteraction: true
         });
